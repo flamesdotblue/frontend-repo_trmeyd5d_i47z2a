@@ -1,6 +1,19 @@
+import { useState } from 'react';
 import { Sparkles, Search, TrendingUp } from 'lucide-react';
 
-export default function Hero() {
+export default function Hero({ onSearch }) {
+  const [query, setQuery] = useState('');
+
+  const handleSearch = () => {
+    onSearch?.(query.trim());
+    const el = document.getElementById('latest');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const onKey = (e) => {
+    if (e.key === 'Enter') handleSearch();
+  };
+
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-indigo-50 via-white to-white dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-950" />
@@ -22,11 +35,14 @@ export default function Hero() {
                 <Search className="text-neutral-500" size={18} />
                 <input
                   type="text"
+                  value={query}
+                  onChange={(e)=>setQuery(e.target.value)}
+                  onKeyDown={onKey}
                   placeholder="Search topics: AI, startups, markets..."
                   className="w-full bg-transparent outline-none text-sm text-neutral-800 dark:text-neutral-200 placeholder-neutral-400"
                 />
               </div>
-              <button className="inline-flex items-center justify-center rounded-xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-5 py-2.5 text-sm font-medium shadow-sm hover:shadow transition-all">
+              <button onClick={handleSearch} className="inline-flex items-center justify-center rounded-xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-5 py-2.5 text-sm font-medium shadow-sm hover:shadow transition-all">
                 Explore Latest
               </button>
             </div>

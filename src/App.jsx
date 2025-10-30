@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import NewsFeed from './components/NewsFeed';
 import Reports from './components/Reports';
+import SignInModal from './components/SignInModal';
 import { Check } from 'lucide-react';
 
 function Footer() {
@@ -20,12 +22,31 @@ function Footer() {
 }
 
 export default function App() {
+  const [query, setQuery] = useState('');
+  const [signInOpen, setSignInOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token');
+    const email = localStorage.getItem('auth_email');
+    if (token && email) setUser({ token, email });
+  }, []);
+
+  const onSignedIn = ({ token, email, name }) => {
+    setUser({ token, email, name });
+  };
+  const onSignOut = () => {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_email');
+    setUser(null);
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
-      <Header />
+      <Header onSignInOpen={() => setSignInOpen(true)} user={user} onSignOut={onSignOut} />
       <main>
-        <Hero />
-        <NewsFeed />
+        <Hero onSearch={setQuery} />
+        <NewsFeed query={query} />
         <Reports />
 
         <section id="pricing" className="py-16 sm:py-24 bg-gradient-to-b from-white to-neutral-50 dark:from-neutral-900 dark:to-neutral-950">
@@ -57,7 +78,7 @@ export default function App() {
                   <li className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300"><Check size={16} className="text-green-500" /> Weekly deep dives</li>
                   <li className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300"><Check size={16} className="text-green-500" /> Export & share</li>
                 </ul>
-                <button className="mt-6 w-full rounded-xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-4 py-2 text-sm shadow-sm">Upgrade</button>
+                <button className="mt-6 w-full rounded-xl bg-neutral-900 text-white dark:bg:white dark:text-neutral-900 px-4 py-2 text-sm shadow-sm">Upgrade</button>
               </div>
 
               <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm">
@@ -76,6 +97,8 @@ export default function App() {
         </section>
       </main>
       <Footer />
+
+      <SignInModal open={signInOpen} onClose={() => setSignInOpen(false)} onSignedIn={onSignedIn} />
     </div>
   );
 }

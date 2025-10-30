@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Newspaper, Sparkles, Menu, X, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Newspaper, Sparkles, Menu, X, User, LogOut } from 'lucide-react';
 
-export default function Header() {
+export default function Header({ onSignInOpen, user, onSignOut }) {
   const [open, setOpen] = useState(false);
 
   const navItems = [
@@ -10,6 +10,12 @@ export default function Header() {
     { label: 'Reports', href: '#reports' },
     { label: 'Pricing', href: '#pricing' },
   ];
+
+  useEffect(() => {
+    const onResize = () => setOpen(false);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-white/60 bg-white/70 dark:bg-neutral-900/70 border-b border-neutral-200 dark:border-neutral-800">
@@ -28,12 +34,23 @@ export default function Header() {
               {item.label}
             </a>
           ))}
-          <a href="#pricing" className="rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-4 py-2 text-sm font-medium shadow-sm hover:shadow transition-all">
-            Get Started
-          </a>
-          <button className="inline-flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white">
-            <User size={18} /> Sign in
-          </button>
+          {!user ? (
+            <button onClick={onSignInOpen} className="rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-4 py-2 text-sm font-medium shadow-sm hover:shadow transition-all inline-flex items-center gap-2">
+              <User size={18} /> Sign in
+            </button>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="inline-flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900">
+                  {user.email?.[0]?.toUpperCase()}
+                </span>
+                {user.email}
+              </div>
+              <button onClick={onSignOut} className="inline-flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white">
+                <LogOut size={18} /> Sign out
+              </button>
+            </div>
+          )}
         </nav>
 
         <button aria-label="Toggle menu" onClick={() => setOpen(!open)} className="md:hidden inline-flex items-center justify-center rounded-md p-2 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800">
@@ -49,9 +66,15 @@ export default function Header() {
                 {item.label}
               </a>
             ))}
-            <a href="#pricing" className="mt-2 inline-flex items-center justify-center rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-4 py-2 text-sm font-medium shadow-sm">
-              Get Started
-            </a>
+            {!user ? (
+              <button onClick={onSignInOpen} className="mt-2 inline-flex items-center justify-center rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-4 py-2 text-sm font-medium shadow-sm">
+                <User size={18} /> Sign in
+              </button>
+            ) : (
+              <button onClick={onSignOut} className="mt-2 inline-flex items-center justify-center rounded-full border border-neutral-200 dark:border-neutral-800 px-4 py-2 text-sm">
+                <LogOut size={18} /> Sign out
+              </button>
+            )}
           </div>
         </div>
       )}
